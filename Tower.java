@@ -1,17 +1,24 @@
 import java.awt.*;
 
-// 1) Добавить параметр смещения отностельно оси Х
+// 1) Добавить параметр смещения относительно оси Х ✓
 // 2) Разные типы башен (возможно не только башни)
 // 3) Механизм здоровья башни (200 >= MAX >= 150, 150 > MID >= 70, 70 > LOW >= 0)
 public class Tower {
 
-    private int heath = 200;
+    private int health = 200;
+    private int xOffset = 0; // Параметр смещения относительно центра (в пикселях)
 
-    public Tower(int heath) {
-        this.heath = heath;
+    public Tower(int health, int xOffset) {
+        this.health = health;
+        this.xOffset = xOffset;
+    }
+
+    public Tower(int xOffset) {
+        this.xOffset = xOffset;
     }
 
     public Tower() {
+        this.xOffset = 0; // По умолчанию без смещения
     }
 
     public void draw(Graphics g, int panelHeight, int panelWidth) {
@@ -24,7 +31,9 @@ public class Tower {
 
         // Координаты основания башни (внизу экрана)
         int baseY = panelHeight - 50; // Основание с небольшим отступом от низа
-        int centerX = panelWidth / 2; // Центр экрана
+        
+        // Центр башни с учетом смещения
+        int centerX = panelWidth / 2 + xOffset;
 
         // Основной корпус башни (шире внизу, уже вверху)
         int baseWidth = 120;  // Ширина основания
@@ -162,5 +171,22 @@ public class Tower {
             g2d.drawRect(x + gapWidth/2, topY - height,
                     battlementWidth - gapWidth, height);
         }
+    }
+    
+    // Геттеры и сеттеры для доступа к полям
+    public int getHealth() {
+        return health;
+    }
+    
+    public void setHealth(int health) {
+        this.health = health;
+    }
+    
+    public int getXOffset() {
+        return xOffset;
+    }
+    
+    public void setXOffset(int xOffset) {
+        this.xOffset = xOffset;
     }
 }
