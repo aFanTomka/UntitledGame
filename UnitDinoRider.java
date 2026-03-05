@@ -65,6 +65,8 @@ public class UnitDinoRider extends GameObject {
 
     @Override
     public void paintIcon(Component c, Graphics g, int x, int y) {
+        this.x = x;
+        this.y = y;
         draw(g);
     }
 }
