@@ -7,13 +7,54 @@ import java.awt.*;
 
 public class UnitArcher extends GameObject {
 
+    private GameObject currentTarget;
+
     public UnitArcher() {
+        attackCooldown = 5.0f;
+        this.lastAttackTime = -5.0f;
     }
 
     public UnitArcher(int id, float x, float y, int size, float speed) {
         super(id, x, y, size, speed, Color.BLACK);
+
     }
 
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime); // базовое движение, если есть
+
+        // Проверяем, жива ли текущая цель и не сменила ли фракцию
+        if (currentTarget != null && (!currentTarget.isAlive() || currentTarget.getFraction() == this.fraction)) {
+            currentTarget = null; // цель мертва или стала своей
+        }
+
+        // Если нет цели, ищем новую в удвоенном радиусе
+        if (currentTarget == null) {
+            currentTarget = engine.findNearestEnemy(this, attackRange * 2);
+        }
+
+        // Если есть цель — действуем
+        if (currentTarget != null) {
+            float dist = distanceTo(currentTarget);
+            if (dist > attackRange) {
+                // Вне радиуса атаки — двигаемся к цели
+                moveTowards(currentTarget, deltaTime);
+                setSpeed(2);
+            } else {
+                // В радиусе атаки — стреляем, если прошло достаточно времени
+                if (canAttack(engine.getGameTime())) {
+                    // Простой угол по направлению к цели (можно заменить на баллистику)
+                    float angle = Arrow.calculateArrowAngle(x, y, currentTarget.x, currentTarget.y, 600);
+                    Arrow arrow = new Arrow(x, y, angle, 600);
+                    arrow.setAttackDamage(attackDamage);
+                    arrow.setFraction(fraction);
+                    engine.spawnObject(arrow);
+                    lastAttackTime = engine.getGameTime(); // обновляем время атаки
+                }
+                setSpeed(0);
+            }
+        }
+    }
     public void draw(Graphics g) {
         // базовая точка (x, y) соответствует координатам (150, 50) в исходном коде
         float k = this.size / 100.0f;
