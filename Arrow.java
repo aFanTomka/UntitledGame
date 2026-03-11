@@ -5,7 +5,7 @@ public class Arrow extends GameObject {
     private static final float GRAVITY = 800f;
     
     public Arrow(float startX, float startY, float angleDeg, float speed) {
-        super(-1, startX, startY, 30, 5, Color.BLACK);
+        super(-1, startX, startY, 30, 5);
         float angleRad = (float) Math.toRadians(angleDeg);
         this.vx = speed * (float) Math.cos(angleRad);
         this.vy = speed * (float) Math.sin(angleRad);
