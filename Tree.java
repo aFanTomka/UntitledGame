@@ -1,5 +1,3 @@
-package org.example;
-
 import java.awt.*;
 import java.util.Random;
 

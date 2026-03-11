@@ -4,11 +4,11 @@ import java.awt.geom.Rectangle2D;
 import java.util.Objects;
 
 public class GameObject implements Cloneable, Icon {
-    protected final int id;
+    protected int id;
     protected float x;
     protected float y;
-    protected final int size;
-    protected final float speed;
+    protected int size;
+    protected float speed;
     protected Color color;
 
     public GameObject() {
@@ -18,12 +18,13 @@ public class GameObject implements Cloneable, Icon {
         color = Color.BLACK;
     }
 
-    public GameObject(int id, float x, float y, float size, float speed) {
+    public GameObject(int id, float x, float y, int size, float speed, Color color) {
         this.id = id;
         this.x = x;
         this.y = y;
-
+        this.size = size;
         this.speed = speed;
+        this.color = color;
     }
 
     public GameObject(int id, float x, float y, int size, float speed) {
@@ -32,6 +33,21 @@ public class GameObject implements Cloneable, Icon {
         this.y = y;
         this.size = size;
         this.speed = speed;
+    }
+
+    public GameObject(float x, float y, int size) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+    }
+
+    public GameObject(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public GameObject(int size) {
+        this.size = size;
     }
 
     protected void update() {
@@ -61,18 +77,36 @@ public class GameObject implements Cloneable, Icon {
 
     }
 
-    public float getX() { return x; }
-    public float getY() { return y; }
+    public float getX() {
+        return x;
+    }
 
-    public int getId() { return id; }
-    public float getSpeed() { return speed; }
+    public float getY() {
+        return y;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
 
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         GameObject that = (GameObject) o;
-        return id == that.id && Float.compare(x, that.x) == 0 && Float.compare(y, that.y) == 0  && Float.compare(speed, that.speed) == 0;
+        return id == that.id && Float.compare(x, that.x) == 0 && Float.compare(y, that.y) == 0 && Float.compare(speed, that.speed) == 0;
     }
 
     @Override
