@@ -9,11 +9,15 @@ public class Engine {
     private int screenHeight = 600;
     private final List<GameObject> objects = new ArrayList<>();
     private final Random random = new Random();
+    private static Engine engine = null;
 
-    public Engine() {
-       objects.add(new Tower(0, 600,350 , 50, 0));
-       // objects.add(new GameObject(1, 0, 200, 30, 4, Color.BLUE));
-       // objects.add(new GameObject(2, 0, 300, 60, 1, Color.GREEN));
+    private Engine() {}
+
+    public static Engine getInstance() {
+        if (engine == null) {
+            engine = new Engine();
+        }
+        return engine;
     }
 
     public void update(float deltaTime) {

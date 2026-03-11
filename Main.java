@@ -4,7 +4,7 @@ import java.awt.*;
 public class Main {
 
     public static void main(String[] args) {
-        Engine engine = new Engine();
+        Engine engine = Engine.getInstance();
         GameView gameView = new GameView(engine);
         JFrame frame = new JFrame("Untitled Game");
         frame.setSize(400, 400);
