@@ -1,17 +1,33 @@
 import java.awt.*;
 
-// 1) Добавить параметр смещения отностельно оси Х
+// 1) Добавить параметр смещения относительно оси Х ✓
 // 2) Разные типы башен (возможно не только башни)
 // 3) Механизм здоровья башни (200 >= MAX >= 150, 150 > MID >= 70, 70 > LOW >= 0)
 public class Tower extends GameObject {
 
-    private int heath = 200;
+    private int health = 200;
 
-    public Tower(int id, float x, float y, int size, float speed) {
-        super(id, x, y, size, speed);
+    public Tower(int id, float x, float y, int size, float speed, Color color, int health) {
+        super(id, x, y, size, speed, color);
+        this.health = health;
     }
 
-    public void draw(Graphics g) {
+    public Tower(int id, float x, float y, int health) {
+        super(id, x, y, 120, 0, new Color(140, 120, 100)); // размер башни 120, скорость 0
+        this.health = health;
+    }
+
+    public Tower(float x, int health) {
+        super(0, x, 0, 120, 0, new Color(140, 120, 100));
+        this.health = health;
+    }
+
+    public Tower() {
+        super(0, 0, 0, 120, 0, new Color(140, 120, 100));
+        this.health = 200;
+    }
+
+    public void draw(Graphics g, int panelHeight, int panelWidth) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND,
                 BasicStroke.JOIN_MITER));
@@ -20,12 +36,14 @@ public class Tower extends GameObject {
         int towerHeight = 300;
 
         // Координаты основания башни (внизу экрана)
-        int baseY = (int) (y ); // Основание с небольшим отступом от низа
-        int centerX = (int) (x / 2); // Центр экрана
+        int baseY = panelHeight - 50; // Основание с небольшим отступом от низа
+        
+        // Центр башни с учетом координаты X из GameObject
+        int centerX = (int) getX();
 
-        // Основной корпус башни (шире внизу, уже вверху)
-        int baseWidth = 120;  // Ширина основания
-        int topWidth = 80;    // Ширина вершины
+        // Ширина башни из размера GameObject
+        int baseWidth = getSize();
+        int topWidth = baseWidth * 2 / 3; // 80 при baseWidth=120
 
         int[] towerX = {
                 centerX - baseWidth/2,  // левый низ (1)
@@ -56,7 +74,7 @@ public class Tower extends GameObject {
         };
 
         // Рисуем башню
-        g2d.setColor(new Color(140, 120, 100)); // цвет камня
+        g2d.setColor(getColor());
         g2d.fillPolygon(towerX, towerY, 11);
 
         // Обводка башни
@@ -159,5 +177,21 @@ public class Tower extends GameObject {
             g2d.drawRect(x + gapWidth/2, topY - height,
                     battlementWidth - gapWidth, height);
         }
+    }
+    
+    // Геттеры и сеттеры для доступа к полям
+    public int getHealth() {
+        return health;
+    }
+    
+    public void setHealth(int health) {
+        this.health = health;
+    }
+    
+    // Переопределение метода update (если нужно)
+    @Override
+    public void update() {
+        // Башни обычно не двигаются, поэтому update пустой
+        // или можно добавить логику позже
     }
 }
