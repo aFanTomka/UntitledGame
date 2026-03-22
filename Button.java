@@ -1,13 +1,15 @@
-package org.vlg;
 import javax.swing.*;
 import java.awt.*;
+
 public class Button extends JButton {
 
-    // Засыпкин - исправить
-    public Button(String text /* Вытоптов - добавить событие */) {
-
-        // Рябухин - добавить иконку
-        setPreferredSize(new Dimension(60,60));
-        super(text);
+    public Button(String text, Icon icon, Event event) {
+        super(text, icon);
+        setVerticalTextPosition(SwingConstants.BOTTOM);
+        setHorizontalTextPosition(SwingConstants.CENTER);
+        setVerticalAlignment(SwingConstants.TOP);
+        setHorizontalAlignment(SwingConstants.CENTER);
+        setMargin(new Insets(5, 5, 5, 5));
+        addActionListener(e -> event.action());
     }
 }

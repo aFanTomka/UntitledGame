@@ -47,6 +47,7 @@ public class GameObject implements Cloneable, Icon {
         this.x = x;
         this.y = y;
         this.size = size;
+ update-gameobject
     }
 
     public GameObject(float x, float y) {
@@ -62,6 +63,23 @@ public class GameObject implements Cloneable, Icon {
         x += (int) (speed * dt);
     }
 
+
+    }
+
+    public GameObject(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public GameObject(int size) {
+        this.size = size;
+    }
+
+    protected void update(float dt) {
+        x += (int) (speed * dt);
+    }
+
+ main
     public void moveTowards(GameObject target, float dt) {
         float dirX = target.x - this.x;
         float dirY = target.y - this.y;
@@ -89,6 +107,7 @@ public class GameObject implements Cloneable, Icon {
     }
 
     public void attack(GameObject target, float currentTime) {
+ update-gameobject
         if (target == null || !target.isAlive()) return;
 
         // проверка дистанции
@@ -102,6 +121,9 @@ public class GameObject implements Cloneable, Icon {
 
         // обновляем время последней атаки
         lastAttackTime = currentTime;
+
+
+ main
     }
 
     public float distanceTo(GameObject other) {
@@ -127,6 +149,7 @@ public class GameObject implements Cloneable, Icon {
 
     public float getX() {
         return x;
+ update-gameobject
     }
 
     public float getY() {
@@ -201,6 +224,82 @@ public class GameObject implements Cloneable, Icon {
         return attackCooldown;
     }
 
+
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public int getAttackDamage() {
+        return attackDamage;
+    }
+
+    public void setAttackDamage(int attackDamage) {
+        this.attackDamage = attackDamage;
+    }
+
+    public float getAttackRange() {
+        return attackRange;
+    }
+
+    public void setAttackRange(float attackRange) {
+        this.attackRange = attackRange;
+    }
+
+    public float getAttackCooldown() {
+        return attackCooldown;
+    }
+
+ main
     public void setAttackCooldown(float attackCooldown) {
         this.attackCooldown = attackCooldown;
     }
