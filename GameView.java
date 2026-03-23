@@ -5,6 +5,7 @@ import java.awt.event.MouseListener;
 
 public class GameView extends JPanel implements MouseListener {
     private long startTime;
+    private Background background = new Background(); // Добавил
     private Engine engine;
 
     public GameView(Engine engine) {
@@ -19,6 +20,7 @@ public class GameView extends JPanel implements MouseListener {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
+        background.draw(g, getWidth(), getHeight()); // Добавил
         engine.draw(g);
     }
 
@@ -51,5 +53,8 @@ public class GameView extends JPanel implements MouseListener {
     @Override
     public void mouseExited(MouseEvent e) {
         System.out.println("mouseExited");
+    }
+    public void draw() {
+        repaint();
     }
 }
