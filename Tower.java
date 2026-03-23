@@ -3,18 +3,15 @@ import java.awt.*;
 // 1) Добавить параметр смещения отностельно оси Х
 // 2) Разные типы башен (возможно не только башни)
 // 3) Механизм здоровья башни (200 >= MAX >= 150, 150 > MID >= 70, 70 > LOW >= 0)
-public class Tower {
+public class Tower extends GameObject {
 
     private int heath = 200;
 
-    public Tower(int heath) {
-        this.heath = heath;
+    public Tower(int id, float x, float y, int size, float speed) {
+        super(id, x, y, size, speed);
     }
 
-    public Tower() {
-    }
-
-    public void draw(Graphics g, int panelHeight, int panelWidth) {
+    public void draw(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND,
                 BasicStroke.JOIN_MITER));
@@ -23,8 +20,8 @@ public class Tower {
         int towerHeight = 300;
 
         // Координаты основания башни (внизу экрана)
-        int baseY = panelHeight - 50; // Основание с небольшим отступом от низа
-        int centerX = panelWidth / 2; // Центр экрана
+        int baseY = (int) (y ); // Основание с небольшим отступом от низа
+        int centerX = (int) (x / 2); // Центр экрана
 
         // Основной корпус башни (шире внизу, уже вверху)
         int baseWidth = 120;  // Ширина основания

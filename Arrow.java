@@ -5,17 +5,17 @@ public class Arrow extends GameObject {
     private static final float GRAVITY = 800f;
     
     public Arrow(float startX, float startY, float angleDeg, float speed) {
-        super(-1, startX, startY, 30, 5, Color.BLACK);
+        super(-2, startX, startY, 30, speed);
         float angleRad = (float) Math.toRadians(angleDeg);
         this.vx = speed * (float) Math.cos(angleRad);
         this.vy = speed * (float) Math.sin(angleRad);
     }
 
     @Override
-    public void update() {
-        x += (float) (vx * 0.016);
-        y += (float) (vy * 0.016);
-        vy += (float) (GRAVITY * 0.016);
+    public void update(float dt) {
+        x += vx * dt;
+        y += vy * dt;
+        vy += GRAVITY * dt;
     }
 
     @Override
@@ -62,5 +62,44 @@ public class Arrow extends GameObject {
         g2d.drawLine(startX, startY,
                 (int) (startX + featherLength * perpX),
                 (int) (startY + featherLength * perpY));
+    }
+
+    public static float calculateArrowAngle(float startX, float startY, float targetX, float targetY, float speed) {
+        float dx = targetX - startX;
+        float dy = targetY - startY;
+
+        if (dx == 0) {
+            if (dy == 0) return 0;
+            if (dy > 0) {
+                if (speed * speed >= 2 * GRAVITY * dy) {
+                    return -90f;
+                }
+            } else {
+                return 90f;
+            }
+        }
+
+        float angleRad = getAngleRad(speed, dx, dy);
+
+        return (float) Math.toDegrees(angleRad);
+    }
+
+    private static float getAngleRad(float speed, float dx, float dy) {
+        float A = (GRAVITY * dx * dx) / (2 * speed * speed);
+        float discriminant = dx * dx - 4 * A * (A - dy);
+
+        if (discriminant < 0) {
+            throw new RuntimeException("target is unattainable");
+        }
+
+        float sqrtD = (float) Math.sqrt(discriminant);
+        float u1 = (-dx + sqrtD) / (2 * A);
+        float u2 = (-dx - sqrtD) / (2 * A);
+
+        float u = Math.abs(u1) < Math.abs(u2) ? u1 : u2;
+
+        float cosTheta = Math.signum(dx) / (float) Math.sqrt(1 + u * u);
+        float sinTheta = u * cosTheta;
+        return (float) Math.atan2(sinTheta, cosTheta);
     }
 }
