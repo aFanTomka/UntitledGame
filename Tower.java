@@ -6,12 +6,18 @@ import java.awt.*;
 public class Tower extends GameObject {
 
     private int heath = 200;
+    private float spawnTime = -1;
+    private float lifetime = 10.0f;
+
+
 
     public Tower(int id, float x, float y, int size, float speed) {
         super(id, x, y, size, speed);
+        this.spawnTime = Engine.getInstance().getGameTime();
     }
 
     public void draw(Graphics g) {
+        if (!isAlive) return;
         Graphics2D g2d = (Graphics2D) g;
         g2d.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND,
                 BasicStroke.JOIN_MITER));
@@ -160,4 +166,14 @@ public class Tower extends GameObject {
                     battlementWidth - gapWidth, height);
         }
     }
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+
+        // Если прошло время жизни — уничтожаем башню
+        if (spawnTime > 0 && Engine.getInstance().getGameTime() - spawnTime > lifetime) {
+            this.isAlive = false;
+        }
+    }
 }
+

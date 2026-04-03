@@ -55,6 +55,7 @@ public class UnitArcher extends GameObject {
             }
         }
     }
+
     public void draw(Graphics g) {
         // базовая точка (x, y) соответствует координатам (150, 50) в исходном коде
         float k = this.size / 100.0f;
@@ -112,6 +113,26 @@ public class UnitArcher extends GameObject {
                     Math.round(x - 10 * k), Math.round(y + yOffset * k));
         }
     }
+    /**
+     *  Стрельба в указанную точку (клик мышью)
+     */
+    public void shootAtPosition(float targetX, float targetY, Engine engine) {
+        if (!isAlive()) return;
+
+        // Проверяем кулдаун
+        float currentTime = engine.getGameTime();
+        if (currentTime - lastAttackTime < attackCooldown) return;
+
+        // Создаём стрелу
+        float angle = Arrow.calculateArrowAngle(x, y, targetX, targetY, 600);
+        Arrow arrow = new Arrow(x, y, angle, 600);
+        arrow.setAttackDamage(this.attackDamage > 0 ? this.attackDamage : 10);
+        arrow.setFraction(this.fraction);
+        engine.spawnObject(arrow);
+
+        // Обновляем время атаки
+        lastAttackTime = currentTime;
+    }
 
     @Override
     public void paintIcon(Component c, Graphics g, int x, int y) {
@@ -119,4 +140,5 @@ public class UnitArcher extends GameObject {
         this.y = y;
         draw(g);
     }
+
 }

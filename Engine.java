@@ -22,12 +22,18 @@ public class Engine {
         }
         return engine;
     }
+    public void cleanupDeadObjects() {
+        objects.removeIf(obj -> !obj.isAlive());
+    }
 
     public void update(float deltaTime) {
+        checkArrowTowerCollisions();
+        cleanupDeadObjects();
         this.deltaTime = deltaTime;
         gameTime += deltaTime;
         for (GameObject object: objects) {
             object.update(deltaTime);
+
         }
 
         objects.removeIf(obj -> !obj.isAlive());
@@ -147,6 +153,70 @@ public class Engine {
             }
         }
         return nearest;
+    }
+    /**
+     * Проверка коллизий: стрелы ↔ башни
+     */
+    private void checkArrowTowerCollisions() {
+        List<GameObject> arrows = new ArrayList<>();
+        List<GameObject> towers = new ArrayList<>();
+
+        // Разделяем объекты по типам
+        for (GameObject obj : objects) {
+            if (obj instanceof Arrow && obj.isAlive()) {
+                arrows.add(obj);
+            }
+            if (obj instanceof Tower && obj.isAlive()) {
+                towers.add(obj);
+            }
+        }
+
+        // Проверяем каждую стрелу против каждой башни
+        for (GameObject arrowObj : arrows) {
+            Arrow arrow = (Arrow) arrowObj;
+
+            for (GameObject towerObj : towers) {
+                Tower tower = (Tower) towerObj;
+
+                // 🔥 Проверка коллизии (круг-прямоугольник)
+                if (checkArrowTowerCollision(arrow, tower)) {
+                    // 💥 Попадание!
+                    tower.setAlive(false);  // Уничтожаем башню
+                    arrow.setAlive(false);  // Удаляем стрелу
+
+                    System.out.println("💥 Arrow hit Tower! Tower destroyed.");
+                    break; // одна стрела — одна башня
+                }
+            }
+        }
+    }
+
+    /**
+     * Проверка коллизии стрелы и башни
+     * @return true если произошло попадание
+     */
+    private boolean checkArrowTowerCollision(Arrow arrow, Tower tower) {
+        // Позиция стрелы
+        float arrowX = arrow.getX();
+        float arrowY = arrow.getY();
+
+        // Позиция и размеры башни
+        float towerX = tower.getX();      // центр/основание по X
+        float towerY = tower.getY();      // основание по Y
+        float towerWidth = 120f;          // ширина башни (подберите по факту)
+        float towerHeight = 300f;         // высота башни
+
+        // Башня рисуется от (towerX - width/2, towerY - height) до (towerX + width/2, towerY)
+        float towerLeft = towerX - towerWidth / 2;
+        float towerRight = towerX + towerWidth / 2;
+        float towerTop = towerY - towerHeight;
+        float towerBottom = towerY;
+
+        // Проверка: попадает ли точка стрелы в прямоугольник башни
+        return arrowX >= towerLeft &&
+                arrowX <= towerRight &&
+                arrowY >= towerTop &&
+                arrowY <= towerBottom;
     }
 
     public List<GameObject> getObjects() {
