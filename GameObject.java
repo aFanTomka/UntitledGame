@@ -358,4 +358,12 @@ public class GameObject implements Cloneable, Icon {
                 ", color=" + color +
                 '}';
     }
+
+    public void start(float moveSpeed) {
+        this.speed = moveSpeed;
+    }
+
+    public void stop() {
+        this.speed = 0f;
+    }
 }

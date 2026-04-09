@@ -12,6 +12,8 @@ public class Engine {
     private final List<GameObject> objects = new ArrayList<>();
     private final Random random = new Random();
     private static Engine engine = null;
+    private float enemySpawnTimer = 0f;
+    private final float ENEMY_SPAWN_INTERVAL = 10f;
 
     private Engine() {
     }
@@ -24,24 +26,19 @@ public class Engine {
     }
 
     public void update(float deltaTime) {
+        enemySpawnTimer += deltaTime;
+        if (enemySpawnTimer >= ENEMY_SPAWN_INTERVAL) {
+            spawnEnemyMob();
+            enemySpawnTimer = 0f;
+        }
+        checkArrowTowerCollisions();
+        cleanupDeadObjects();
         this.deltaTime = deltaTime;
         gameTime += deltaTime;
-
-        List<GameObject> objectCopy;
-
-        synchronized (objects) {
-            objectCopy = new ArrayList<>(objects);
+        for (int i = 0; i < objects.size(); i++) {
+            objects.get(i).update(deltaTime);
         }
-
-        for (GameObject object : objectCopy) {
-            if (object.isAlive()) {
-                object.update(deltaTime);
-            }
-        }
-
-        synchronized (objects) {
-            objects.removeIf(obj -> !obj.isAlive());
-        }
+        objects.removeIf(obj -> !obj.isAlive());
     }
 
     public void draw(Graphics g) {
@@ -229,15 +226,13 @@ public class Engine {
         this.screenWidth = screenWidth;
     }
 
-    public float getGameTime() {
-        return gameTime;
-    }
 
-    public float getDeltaTime() {
-        return deltaTime;
-    }
+    public float getGameTime() { return gameTime; }
+    
+    private void spawnEnemyMob() {
+        GameObject enemy = new GameObject(-1, 1600,800, 50, -120f);
+        enemy.setFraction(1);
+        spawnObject(enemy);
 
-    public Random getRandom() {
-        return random;
     }
 }
