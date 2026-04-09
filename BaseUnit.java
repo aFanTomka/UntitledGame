@@ -1,96 +1,126 @@
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.util.List;
 
 public class BaseUnit extends GameObject {
 
+    private static final float BASE_SPEED = 150f;
+    private static final float BASE_ATTACK_COOLDOWN = 1f;
+    private float lastAttackTime = -5f;
+
+    // КООРДИНАТЫ БАШНИ (ПОМЕНЯЙ НА СВОИ)
+    private static final float TOWER_X = 500;
+    private static final float TOWER_Y = 300;
+
     public BaseUnit() {
+        this.fraction = 2;
     }
 
     public BaseUnit(int id, float x, float y, int size, float speed) {
-        super(id, x, y, size, speed, Color.BLACK);
+        super(id, x, y, size, BASE_SPEED, Color.BLACK);
+        attackCooldown = BASE_ATTACK_COOLDOWN;
+        attackDamage = 50;  // УВЕЛИЧИЛ УРОН
+        health = 100;
+        fraction = 2;
     }
 
-    // Сеттеры для координат
-    public void setX(float x) {
-        this.x = x;
+    public void setEngine(Engine engine) {
+        this.engine = engine;
     }
 
-    public void setY(float y) {
-        this.y = y;
+    @Override
+    public void update(float deltaTime) {
+        if (!isAlive) return;
+
+        // ДВИГАЕМСЯ К БАШНЕ
+        float dx = TOWER_X - x;
+        float dy = TOWER_Y - y;
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 10) {
+            // Движение
+            float angle = (float) Math.atan2(dy, dx);
+            x += Math.cos(angle) * BASE_SPEED * deltaTime;
+            y += Math.sin(angle) * BASE_SPEED * deltaTime;
+        } else {
+            // БЬЕМ БАШНЮ КАЖДУЮ СЕКУНДУ
+            if (engine != null) {
+                float currentTime = engine.getGameTime();
+                if (currentTime - lastAttackTime >= attackCooldown) {
+                    // ИЩЕМ БАШНЮ ВО ВСЕХ ОБЪЕКТАХ
+                    List<GameObject> objects = engine.getObjects();
+                    if (objects != null) {
+                        for (GameObject obj : objects) {
+                            if (obj == null) continue;
+                            String className = obj.getClass().getSimpleName();
+                            if (className.contains("Tower") && obj.isAlive()) {
+                                // НАШЛИ БАШНЮ - БЬЕМ!
+                                obj.takeDamage(attackDamage);
+                                System.out.println("⚾⚾⚾ BASE UNIT HITS " + className + " FOR " + attackDamage + " DAMAGE! ⚾⚾⚾");
+                                lastAttackTime = currentTime;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    public void setPosition(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    public void setSpeed(float speed) {
-        this.speed = speed;
-    }
-
+    @Override
     public void draw(Graphics g) {
-        int x = (int) this.x;
-        int y = (int) this.y;
-        // масштабный коэффициент: базовый размер принят за 100
         float k = this.size / 100.0f;
-        if (k <= 0) k = 1.0f; // защита от нулевого размера
+        if (k <= 0) k = 1.0f;
 
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // тень
         g2.setColor(new Color(0, 0, 0, 40));
         g2.fillOval(Math.round(x - 25 * k), Math.round(y + 50 * k),
                 Math.round(150 * k), Math.round(20 * k));
 
-
-        // всадник
         g2.setColor(new Color(108, 29, 13));
         g2.fillRoundRect(Math.round(x + 15 * k), Math.round(y - 40 * k),
                 Math.round(40 * k), Math.round(50 * k),
                 Math.round(35 * k), Math.round(75 * k));
+
         g2.setColor(new Color(217, 142, 73));
         g2.fillOval(Math.round(x + 17 * k), Math.round(y - 65 * k),
                 Math.round(35 * k), Math.round(35 * k));
-        g2.setColor(new Color(0, 0, 0));
+
+        g2.setColor(Color.BLACK);
         g2.fillOval(Math.round(x + 42 * k), Math.round(y - 57 * k),
                 Math.round(5 * k), Math.round(10 * k));
         g2.fillOval(Math.round(x + 33 * k), Math.round(y - 55 * k),
                 Math.round(5 * k), Math.round(10 * k));
 
-
         Graphics2D gBat = (Graphics2D) g2.create();
-
         double angle = Math.toRadians(-40);
         int bx = Math.round(x + 50 * k);
         int by = Math.round(y - 20 * k);
 
         gBat.rotate(angle, bx, by);
 
-        // форма биты (вся бита целиком, включая рукоятку)
         Path2D bat = new Path2D.Float();
-
-        // Начинаем с набалдашника (самый левый край)
-        bat.moveTo(bx - 18 * k, by);                     // левый край набалдашника
-        bat.lineTo(bx - 12 * k, by - 5 * k);             // переход к рукоятке
-        bat.lineTo(bx - 8 * k, by - 6 * k);              // сужение рукоятки
-        bat.lineTo(bx, by - 5 * k);                      // начало рукоятки
-        bat.lineTo(bx + 35 * k, by - 5 * k);             // рукоятка
-        bat.lineTo(bx + 55 * k, by - 10 * k);            // плавное расширение
-        bat.lineTo(bx + 100 * k, by - 15 * k);           // широкая часть
-        bat.lineTo(bx + 115 * k, by - 10 * k);           // сужение к концу
-        bat.lineTo(bx + 115 * k, by);                    // кончик биты
-        bat.lineTo(bx + 115 * k, by + 10 * k);           // нижняя часть конца
-        bat.lineTo(bx + 100 * k, by + 15 * k);           // нижняя широкая часть
-        bat.lineTo(bx + 55 * k, by + 10 * k);            // сужение обратно
-        bat.lineTo(bx + 35 * k, by + 5 * k);             // возврат к рукоятке
-        bat.lineTo(bx, by + 5 * k);                      // конец рукоятки
-        bat.lineTo(bx - 8 * k, by + 6 * k);              // расширение к набалдашнику
-        bat.lineTo(bx - 12 * k, by + 5 * k);             // набалдашник нижняя часть
+        bat.moveTo(bx - 18 * k, by);
+        bat.lineTo(bx - 12 * k, by - 5 * k);
+        bat.lineTo(bx - 8 * k, by - 6 * k);
+        bat.lineTo(bx, by - 5 * k);
+        bat.lineTo(bx + 35 * k, by - 5 * k);
+        bat.lineTo(bx + 55 * k, by - 10 * k);
+        bat.lineTo(bx + 100 * k, by - 15 * k);
+        bat.lineTo(bx + 115 * k, by - 10 * k);
+        bat.lineTo(bx + 115 * k, by);
+        bat.lineTo(bx + 115 * k, by + 10 * k);
+        bat.lineTo(bx + 100 * k, by + 15 * k);
+        bat.lineTo(bx + 55 * k, by + 10 * k);
+        bat.lineTo(bx + 35 * k, by + 5 * k);
+        bat.lineTo(bx, by + 5 * k);
+        bat.lineTo(bx - 8 * k, by + 6 * k);
+        bat.lineTo(bx - 12 * k, by + 5 * k);
         bat.closePath();
 
-        // градиент для металлической биты
         GradientPaint metal = new GradientPaint(
                 bx - 10 * k, by,
                 new Color(200, 40, 40),
@@ -100,38 +130,31 @@ public class BaseUnit extends GameObject {
 
         gBat.setPaint(metal);
         gBat.fill(bat);
-
-        // добавляем темную обмотку на рукоятку (поверх, но без разрывов)
         gBat.setColor(new Color(20, 20, 20));
-        gBat.fillRoundRect(
-                bx - Math.round(5 * k),
-                by - Math.round(6 * k),
-                Math.round(40 * k),
-                Math.round(12 * k),
-                8, 8
-        );
-
-        // блик на бите
+        gBat.fillRoundRect(bx - Math.round(5 * k), by - Math.round(6 * k),
+                Math.round(40 * k), Math.round(12 * k), 8, 8);
         gBat.setColor(new Color(255, 220, 220, 120));
         gBat.setStroke(new BasicStroke(3 * k));
-        gBat.drawLine(
-                Math.round(bx + 20 * k),
-                Math.round(by - 2 * k),
-                Math.round(bx + 105 * k),
-                Math.round(by - 8 * k)
-        );
-
-        // дополнительный блик для объема
-        gBat.setColor(new Color(255, 200, 200, 80));
-        gBat.setStroke(new BasicStroke(2 * k));
-        gBat.drawLine(
-                Math.round(bx + 40 * k),
-                Math.round(by - 4 * k),
-                Math.round(bx + 95 * k),
-                Math.round(by - 10 * k)
-        );
-
+        gBat.drawLine(Math.round(bx + 20 * k), Math.round(by - 2 * k),
+                Math.round(bx + 105 * k), Math.round(by - 8 * k));
         gBat.dispose();
+
+        drawHealthBar(g2, k);
+    }
+
+    private void drawHealthBar(Graphics2D g2d, float k) {
+        int barWidth = 60;
+        int barHeight = 8;
+        int barX = Math.round(x + 5 * k);
+        int barY = Math.round(y - 10 * k);
+        g2d.setColor(Color.RED);
+        g2d.fillRect(barX, barY, barWidth, barHeight);
+        g2d.setColor(Color.GREEN);
+        int healthPercent = (int) ((float) health / 100f * barWidth);
+        healthPercent = Math.max(0, Math.min(barWidth, healthPercent));
+        g2d.fillRect(barX, barY, healthPercent, barHeight);
+        g2d.setColor(Color.BLACK);
+        g2d.drawRect(barX, barY, barWidth, barHeight);
     }
 
     @Override
@@ -139,5 +162,14 @@ public class BaseUnit extends GameObject {
         this.x = x;
         this.y = y + 40;
         draw(g);
+    }
+
+    @Override
+    public void takeDamage(int damage) {
+        health -= damage;
+        if (health <= 0) {
+            health = 0;
+            isAlive = false;
+        }
     }
 }
