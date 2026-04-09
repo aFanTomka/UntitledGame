@@ -2,6 +2,11 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Button extends JButton {
+    // Константы
+    private static final int TIMER_DELAY_MS = 16;   // ~60 FPS
+    private static final int SHADOW_ALPHA = 100;
+    private static final int OVERLAY_ALPHA = 139;
+
     private boolean isOnCooldown = false;
     private Timer cooldownTimer;
     private long cooldownDuration;
@@ -11,7 +16,7 @@ public class Button extends JButton {
     private long cooldownSeconds = 0;
 
     public Button(String text, Icon icon, Event event) {
-        this(text, icon, event, 0); // 0 = без перезарядки
+        this(text, icon, event, 0);
     }
 
     public Button(String text, Icon icon, Event event, long cooldownSeconds) {
@@ -28,12 +33,10 @@ public class Button extends JButton {
 
         addActionListener(e -> {
             if (cooldownSeconds <= 0) {
-                // Без перезарядки
                 if (originalEvent != null) {
                     originalEvent.action();
                 }
             } else {
-                // С перезарядкой
                 if (!isOnCooldown && originalEvent != null) {
                     originalEvent.action();
                     startCooldown();
@@ -46,13 +49,15 @@ public class Button extends JButton {
         isOnCooldown = true;
         cooldownStartTime = System.currentTimeMillis();
         setEnabled(false);
+        fillHeight = 0;
 
-        cooldownTimer = new Timer(16, e -> {
+        cooldownTimer = new Timer(TIMER_DELAY_MS, e -> {
             long elapsed = System.currentTimeMillis() - cooldownStartTime;
 
             if (elapsed >= cooldownDuration) {
                 cooldownTimer.stop();
                 isOnCooldown = false;
+                fillHeight = 0; // сбрасываем при завершении
                 setEnabled(true);
                 repaint();
             } else {
@@ -67,16 +72,17 @@ public class Button extends JButton {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Анимация только если есть перезарядка и она активна
         if (cooldownSeconds > 0 && isOnCooldown) {
             Graphics2D g2d = (Graphics2D) g.create();
 
             int w = getWidth();
             int h = getHeight();
 
-            g2d.setColor(new Color(0, 0, 0, 100));
+            // Затемнение всей кнопки
+            g2d.setColor(new Color(0, 0, 0, SHADOW_ALPHA));
             g2d.fillRect(0, 0, w, h);
 
+            // Рисуем квадрат поверх иконки (центрируем)
             int squareSize = Math.min(w, h);
             int squareX = (w - squareSize) / 2;
             int squareY = (h - squareSize) / 2;
@@ -84,9 +90,11 @@ public class Button extends JButton {
             g2d.setColor(Color.WHITE);
             g2d.drawRect(squareX, squareY, squareSize, squareSize);
 
-            int fillHeightPixels = (int)(squareSize * fillHeight);
-            g2d.setColor(new Color(255, 255, 255, 139));
-            g2d.fillRect(squareX, squareY, squareSize, fillHeightPixels);
+            // Анимация кулдауна (заполнение снизу вверх)
+            int fillHeightPixels = (int) (squareSize * fillHeight);
+            g2d.setColor(new Color(255, 255, 255, 144));
+            g2d.fillRect(squareX, squareY + squareSize - fillHeightPixels,
+                    squareSize, fillHeightPixels);
 
             g2d.dispose();
         }
