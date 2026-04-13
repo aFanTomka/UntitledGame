@@ -23,9 +23,14 @@ public class Controls extends JPanel {
         }));
 
         add(new Button("Spawn Tank", new UnitDinoRider(), () -> {
-            System.out.println("spawn Tank");
-            // under construction
-            game.spawnObject(new Arrow(10, 100, -40, 400));
+            UnitDinoRider unitDinoRider = new UnitDinoRider();
+            unitDinoRider.setFraction(0);
+            unitDinoRider.setX(0);
+            unitDinoRider.setY(game.getScreenHeight() - 250);
+            unitDinoRider.setSize(100);
+            unitDinoRider.setSpeed(1);
+            unitDinoRider.setDirection(1);
+            game.spawnObject(unitDinoRider);
         }));
     }
 }
