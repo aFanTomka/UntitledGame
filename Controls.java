@@ -5,9 +5,14 @@ public class Controls extends JPanel {
     public Controls(Engine game) {
         setLayout(new FlowLayout());
 
-        add(new Button("Spawn Base", new GameObject() /* under construction */, () -> {
-            System.out.println("spawn Base");
-            // under construction
+        add(new Button("Spawn BaseUnit", new BaseUnit(), () -> {
+            BaseUnit baseUnit = new BaseUnit();
+            baseUnit.setFraction(0);
+            baseUnit.setX(100);
+            baseUnit.setY(game.getScreenHeight() - 150);
+            baseUnit.setSize(90);
+            baseUnit.setEngine(game);
+            game.spawnObject(baseUnit);
         }));
 
         add(new Button("Spawn Archer", new UnitArcher() , () -> {
