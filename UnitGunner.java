@@ -55,7 +55,7 @@ public class UnitGunner extends GameObject {
             if (engine == null) return;
         }
 
-        findTarget();
+        moveTowards(dt);
 
         if (target != null && target.isAlive()) {
             float distanceToTarget = Math.abs(this.x - target.getX());
@@ -63,23 +63,7 @@ public class UnitGunner extends GameObject {
 
             if (distanceToTarget <= ATTACK_RANGE && yDifference <= 50) {
                 attack();
-            } else {
-                // Движение к цели
-                if (target.getX() > this.x) {
-                    this.x += MOVE_SPEED * dt;
-                } else {
-                    this.x -= MOVE_SPEED * dt;
-                }
-
-                if (target.getY() > this.y) {
-                    this.y += 50 * dt;
-                } else if (target.getY() < this.y) {
-                    this.y -= 50 * dt;
-                }
             }
-        } else {
-            // Если нет цели - просто идем ВЛЕВО (к правому краю экрана)
-            this.x -= MOVE_SPEED * dt;
         }
 
         if (currentHealth <= 0 || this.x > 850 || this.x < -100) {
@@ -88,29 +72,25 @@ public class UnitGunner extends GameObject {
     }
 
     /**
-     * Поиск цели - атакуем ВСЕХ, КРОМЕ БАШНИ И СЕБЯ
+     * Движение к цели (или влево, если цели нет)
      */
-    private void findTarget() {
+    private void moveTowards(float dt) {
         if (engine == null) return;
 
         List<GameObject> objects = engine.getObjects();
         if (objects == null) return;
 
+        // Поиск ближайшей цели
         GameObject nearest = null;
         float minDistance = Float.MAX_VALUE;
 
         for (GameObject obj : objects) {
             if (obj == null) continue;
             if (!obj.isAlive()) continue;
-            if (obj == this) continue;  // пропускаем себя
-
-            // пропускаем башню
+            if (obj == this) continue;
             if (obj.getClass().getSimpleName().contains("Tower")) continue;
-
-            // пропускаем других ганнеров (чтобы не дрались между собой)
             if (obj.getClass().getSimpleName().equals("UnitGunner")) continue;
 
-            // Атакуем всё остальное (лучников, всадников и т.д.)
             float distance = Math.abs(obj.getX() - this.x);
             if (distance < minDistance) {
                 minDistance = distance;
@@ -118,11 +98,24 @@ public class UnitGunner extends GameObject {
             }
         }
 
-        if (nearest != null) {
-            target = nearest;
-            System.out.println("🎯 Ганнер нашёл цель: " + target.getClass().getSimpleName());
+        target = nearest;
+
+        if (target != null && target.isAlive()) {
+            // Движение к цели
+            if (target.getX() > this.x) {
+                this.x += MOVE_SPEED * dt;
+            } else {
+                this.x -= MOVE_SPEED * dt;
+            }
+
+            if (target.getY() > this.y) {
+                this.y += 50 * dt;
+            } else if (target.getY() < this.y) {
+                this.y -= 50 * dt;
+            }
         } else {
-            target = null;
+            // Если нет цели - идём влево
+            this.x -= MOVE_SPEED * dt;
         }
     }
 
@@ -131,13 +124,14 @@ public class UnitGunner extends GameObject {
 
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastAttackTime >= ATTACK_COOLDOWN_MS) {
+            // Вызываем родительский метод takeDamage у цели
             target.takeDamage(DAMAGE);
             lastAttackTime = currentTime;
-            System.out.println("💥 Ганнер АТАКУЕТ " + target.getClass().getSimpleName() +
+            System.out.println("Ганнер АТАКУЕТ " + target.getClass().getSimpleName() +
                     "! Урон: " + DAMAGE);
 
             if (!target.isAlive()) {
-                System.out.println("💀 " + target.getClass().getSimpleName() + " убит!");
+                System.out.println("Убит" + target.getClass().getSimpleName() + " убит!");
                 target = null;
             }
         }
@@ -145,13 +139,14 @@ public class UnitGunner extends GameObject {
 
     @Override
     public void takeDamage(int damage) {
-        this.currentHealth -= damage;
-        this.health = this.currentHealth;
-        System.out.println("💔 Ганнер получил урон: " + damage + ", HP: " + currentHealth);
+        // Вызываем родительский метод takeDamage из GameObject
+        super.takeDamage(damage);
+        this.currentHealth = this.health;
+        System.out.println("Ганнер получил урон: " + damage + ", HP: " + currentHealth);
 
         if (this.currentHealth <= 0) {
             this.isAlive = false;
-            System.out.println("☠️ Ганнер уничтожен!");
+            System.out.println("Ганнер уничтожен!");
         }
     }
 
