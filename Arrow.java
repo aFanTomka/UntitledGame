@@ -10,7 +10,6 @@ import java.util.List;
 public class Arrow extends GameObject {
     private float vx, vy;
     private static final float GRAVITY = 800f;
-    private GameObject shooter; // кто выпустил
 
     public Arrow(float startX, float startY, float angleDeg, float speed) {
         super(-2, startX, startY, 30, speed);
@@ -18,10 +17,6 @@ public class Arrow extends GameObject {
         this.vx = speed * (float) Math.cos(angleRad);
         this.vy = speed * (float) Math.sin(angleRad);
         this.attackDamage = 20;
-    }
-
-    public void setShooter(GameObject shooter) {
-        this.shooter = shooter;
     }
 
     @Override
